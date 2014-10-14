@@ -1,12 +1,14 @@
-# Perplexity
+# Evaluating Language Models: Perplexity
+
+*Week 1*
 
 **Perplexity** is a measure of the effectiveness of a language model on a test corpus.
 
-Test corpus is composed of sentences `s1...sm`. We can use our model to calculate the probability of seeing this corpus: `p(s1) * ... * p(sm)`.
+Test corpus is composed of sentences `s_1...s_m`. We can use our model to calculate the probability of seeing this corpus: `p(s_1) * ... * p(s_m)`.
 
 Note that:
 
-	log2( p(s1) * ... * p(sm) ) == log2( p(s1) ) + ... + log2( p(sm) )
+	log2( p(s_1) * ... * p(s_m) ) == log2( p(s_1) ) + ... + log2( p(s_m) )
 
 If we divide the sum above by the number of test sentences `M` we get a 'normalized' value `l` - a measure of the 'probability-per-word' for the test data. Then:
 
@@ -14,7 +16,7 @@ If we divide the sum above by the number of test sentences `M` we get a 'normali
 
 where
 
-	l = ( log2( p(s1) ) + ... + log2( p(sm) ) ) / M
+	l = ( log2( p(s_1) ) + ... + log2( p(s_m) ) ) / M
 
 So the lower the perplexity, the better the model. 
 
