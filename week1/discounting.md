@@ -28,7 +28,7 @@ For each word `w` define 2 sets:
 We can then define `q_BO` (the likelihood of `w_i` following `w_i-1`) as follows:
 
 	q_BO( w_i | w_i-1 )  =  count*( w_i-1, w_i ) / count( w_i-1 )                      if w_i is in A(w_i-1)
-	                     =  alpha_w_i-1 * ( q_ML( w_i ) / sum[over B]( q_ML( w ) ))    if w_i is in B(w_i-1)
+	                     =  alpha( w_i-1 ) * ( q_ML( w_i ) / sum[over B]( q_ML( w ) ))    if w_i is in B(w_i-1)
 
 That is:
 
@@ -46,9 +46,9 @@ and discount 0.5, ie `c*(v, w) = c(v, w) - 0.5`, what is the value of `q_BO( boo
 
 	For his, A = { house }, B = { the, book, STOP, his }
 
-	q_BO( book | his ) = alpha_his * q_ML( book ) / ( q_ML( the ) + q_ML( book ) + q_ML( STOP ) )
+	q_BO( book | his ) = alpha( his ) * q_ML( book ) / ( q_ML( the ) + q_ML( book ) + q_ML( STOP ) )
 
-	alpha_his = 1 - (0.5 / 1) = 0.5
+	alpha(his) = 1 - (0.5 / 1) = 0.5
 
 	q_ML( the )  = 1/6
 	q_ML( book ) = 1/6
@@ -60,3 +60,14 @@ and discount 0.5, ie `c*(v, w) = c(v, w) - 0.5`, what is the value of `q_BO( boo
 	q_BO( book | his ) = 0.5 * (1/6) / (1/6 + 1/6 + 2/6 + 1/6)
 	                   = 0.1
 
+### Katz Back-Off Model (Trigrams)
+
+Thee Katz model for trigrams buils upon the bigram model: `alpha` is weighted by `q_BO` calculated at the bigram level.
+
+	If w_i is in B(w_i-2, w_i-1)
+
+	q_BO( w_i | w_i-2, w_i-1 )  =  (alpha( w_i-2, w_i-1 ) * q_BO( w_i | w_i-1 ) ) / sum[over B]( q_BO( w | w_i-1 ) ) 
+
+### Choosing the discount value
+
+This is generally a value between 0 and 1. A value of 0.5 is a reasonable guess; a better value can be found by optimizing on validation data in a similar way to the `lambda`s in linear interpolation.
