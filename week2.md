@@ -2,7 +2,7 @@
 
 The **Tagging Problem** is the problem of tagging (for example) words in a sentence with the appropriate parts of speech (noun, verb etc).
 
-For a **Supervised Learning** problem we have training examples `x_i`, `y_i` for `i=1..m`. Each `x_i` is an input, `y_i` is a label. The goal is to learn a function `f` that maps inputs to labels.
+In a **Supervised Learning** problem we have training examples `x_i`, `y_i` for `i=1..m`. Each `x_i` is an input, `y_i` is a label. The goal is to learn a function `f` that maps inputs to labels.
 
 eg, with the tagging problem,
 
@@ -136,3 +136,114 @@ A common method used to solve this is:
 	* Low frequency words - all other words
 
 2. Map low frequency words into a small, finite set of tokens, eg `twoDigitNum`, `allCaps`, `capPeriod` etc. Then run the model on the mapped/tokenized dataset.
+
+# The Viterbi Algorithm for HMMs
+
+*Recap:* To find the predicted tag sequence for a given input, we need to solve:
+
+	arg max[y_1..y_n+1] p( x_1...x_n, y_1...y_n+1 )
+
+where `arg max` is taken over sequences of `y_i` in `S` (for `i=1..n` and `y_n+1` is `STOP`).
+
+Brute force is not an option as the number of possible combinations is exponential with the size of the input (specifically `S^n`).
+
+The **Viterbi Algorithm** provides an efficient implementation for solving this.
+
+We define function `r` as "the first `k` terms of `p`",  ie simply:
+
+	r(x_1, ..., x_k, y_1, ..., y_k) = q(y_1 | y_-1, y_0) *
+	                                  ... *
+	                                  q(y_k | y_k-2, y_k-1) *
+	                                  e(x_1 | y_1) *
+	                                  ... *
+	                                  e(x_k | y_k)
+
+Also `S_k` is the set of all possible tags at position `k`, so `S_-1 = {*}`, `S_0 = {*}`, `S_k = S` for 'k=1..n'.
+
+Then define a *dynamic programming table* `pi(k, u, v)` that is the maximum probability of a sequence ending in tags `u`, `v` at position `k` (ie the max value of `r` over all sequences of `y`).
+
+#### Exercise
+
+We are given an HMM with transition parameters:
+
+	q(D | *, *)    = 1
+	q(N | *, D)    = 1
+	q(V | D, N)    = 1
+	q(STOP | N, V) = 1
+
+and emission parameters:
+
+	e(the | D)     = 0.8
+	e(dog | D)     = 0.2
+	e(dog | N)     = 0.8
+	e(the | N)     = 0.2
+	e(barks | V)   = 1
+
+Say we have the sentence `the dog barks`, what is the value of `pi(3, N, V)`?
+
+	Only possible sequence of tags is D N V STOP, giving the/D dog/N barks/V.
+
+	pi(3, N, V) = q(D | *, *) * q(N | *, D) * q(V | D, N) * e(the | D) * e(dog | N) * e(barks | V)
+	            = 1 * 1 * 1 * 0.8 * 0.8 * 1
+	            = 0.64
+
+### A Recursive Definition
+
+Obviously the above definition of `pi` requires calculating all possibilities so is no improvement over the brute force case. However, it is possible to define `pi` recursively:
+
+##### Base Case
+
+	pi(0,*,*) = 1
+
+##### Recursive Case
+
+	pi(k,u,v) = max[w in S_k-2] ( pi(k-1,w,u) * q(v|w,u) * e(x_k|v) )
+
+#### Example
+
+Given input sentence `the man saw the dog with the telescope` and set of tags `S = {D, N, V, P}`,
+
+	pi(7,P,D) = max[w in {D, N, V, P}] ( pi(6,w,P) * q(D|w,P) * e(the|D) )
+
+The insight here is that the "highest probability path" for a given sequence ending in `P D` at position 7 **has** to include the highest probability path up to position 5. 
+
+#### Exercise
+
+Say we are given a tag set `S = {D, N, V, P}` and an HMM with parameters
+
+	q(D|N,P) = 0.4
+	q(D|w,P) = 0 for w != N
+	e(the|D) = 0.6
+
+We are also given the sentence `Ella walks to the red house`.
+
+Say the dynamic programming table for this sentence has the following entries:
+
+	pi(3,D,P) = 0.1
+	pi(3,N,P) = 0.2
+	pi(3,V,P) = 0.01
+	pi(3,P,P) = 0.6
+
+What is the value of pi(4,P,D)?
+
+	pi(4,P,D) = max[w in {D, N, V, P}] ( pi(3,w,P) * q(D|w,P) * e(the|D) )
+	          = max(
+	                pi(3,D,P) * q(D|D,P) * e(the|D),
+	                pi(3,N,P) * q(D|N,P) * e(the|D),
+	                pi(3,V,P) * q(D|V,P) * e(the|D),
+	                pi(3,P,P) * q(D|P,P) * e(the|D)
+	            )
+	          = max(
+	                0.1  * 0   * 0.6,
+	                0.2  * 0.4 * 0.6,
+	                0.01 * 0   * 0.6,
+	                0.6  * 0   * 0.6
+	            )
+	          = max( 0, 0.048, 0, 0)
+	          = 0.048
+
+# Pros and Cons of HMMs
+
+* Very simple to train (just needs counts from training corpus)
+* Perform relatively well (90%+ performance on named entity recognition)
+* Main difficulty is modelling `e(word|tag` - requires human input (mapping low frequency words to symbols). This can get out of hand when words are more complex (as we will see later in course).
