@@ -5,7 +5,7 @@ package ab.nlp.assignment1
  */
 class Viterbi(hmm: HMM) {
   /** @return most likely tag sequence for sentence */
-  def apply(ws: List[Word]): List[Tag] = {
+  def apply(ws: List[Word]): List[WordTag] = {
     type Params = (Int, Tag, Tag)
     type Choice = (Tag, Double)
     type Table = Map[Params, Choice]
@@ -46,6 +46,7 @@ class Viterbi(hmm: HMM) {
         buildSequence(k - 1, tag :: sequence)
       }
     }
-    buildSequence(n - 2, List(last0, last1))
+    val ts = buildSequence(n - 2, List(last0, last1))
+    ws zip ts
   }
 }

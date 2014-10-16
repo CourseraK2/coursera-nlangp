@@ -8,9 +8,7 @@ import java.io.{BufferedWriter, FileWriter}
 object Part2 extends App {
   val hmm = new HMM(DataSets.training).robust
   val viterbi = new Viterbi(hmm)
-  val devWordTags: List[List[WordTag]] = for (s <- DataSets.dev) yield {
-    s zip viterbi(s)
-  }
+  val devWordTags: List[List[WordTag]] = for (s <- DataSets.dev) yield viterbi(s)
   val out = new BufferedWriter(new FileWriter("results/gene_dev.p2.out"))
   devWordTags.foreach(s => {
     s.foreach {

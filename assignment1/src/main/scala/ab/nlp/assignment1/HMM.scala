@@ -45,21 +45,16 @@ class HMM(training: List[List[WordTag]]) {
     num / den
   }
 
-  /** @return a HMM where rare words are replaced with the _RARE_ symbol */
-  def robust = {
-    def totals[A](counts: List[(A, Int)]): Map[A, Int] = {
-      counts.groupBy(_._1).mapValues {
-        _.map(_._2).sum
-      }.toList.toMap //Convert to list & back to get fresh impl as map produced by groupBy seems to be v slow
+  /** @return a derived HMM where words are mapped by the provided function */
+  def mapWords(f: Word => Word): HMM = {
+    val mapped: List[List[WordTag]] = for (s <- training) yield {
+      for ((w, t) <- s) yield (f(w), t)
     }
-    val wordCounts: Map[Word, Int] = totals(for (((w, t), c) <- wordTagCounts.toList) yield w -> c)
-    val isCommon: (Word => Boolean) = (for ((w, c) <- wordCounts if c >= 5) yield w).toSet
-    def robustify(w: Word): Word = if (isCommon(w)) w else "_RARE_"
-    val robustified: List[List[WordTag]] = for (s <- training) yield {
-      for ((w, t) <- s) yield (robustify(w), t)
-    }
-    new HMM(robustified) {
-      override def e(w: Word, t: Tag) = super.e(robustify(w), t)
+    new HMM(mapped) {
+      override def e(w: Word, t: Tag) = super.e(f(w), t)
     }
   }
+
+  /** @return a derived HMM where rare words are replaced with the _RARE_ symbol */
+  def robust = mapWords(new RareWords(training.flatten.map(_._1)).toMapping)
 }
