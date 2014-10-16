@@ -24,7 +24,7 @@ So the lower the perplexity, the better the model.
 
 For the simplest possible model (one that assigns uniform probability to all possible trigrams) the perplexity works out to be `N` (size of vocabulary + 1).
 
-### Exercise
+#### Exercise
 
 Given trigram language model:
 
@@ -106,7 +106,7 @@ For example, using `lambda_1 = lambda_2 = lambda_3 = 1/3`:
 	                                 1/3 * q_ML( laughs | dog) +
 	                                 1/3 * q_ML( laughs )
 
-### Exercise
+#### Exercise
 
 Given the corpus:
 
@@ -185,7 +185,7 @@ That is:
 * for words in `A`, simply use the discounded maximum likelihood. 
 * for words in `B`, use previous word's `alpha`, weighted by how common the previous word is releative to the rest of `B`.
 
-### Exercise
+#### Exercise
 
 Given corpus:
 
