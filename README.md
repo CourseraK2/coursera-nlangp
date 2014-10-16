@@ -1,5 +1,5 @@
-# Coursera Natural Language Processing 
+# Natural Language Processing 
 
-Notes and assignments for Michael Collin's [Natural Language Processing](https://class.coursera.org/nlangp-001) course at Columbia (via Coursera).
+Notes and assignments for Michael Collins' [Natural Language Processing](https://class.coursera.org/nlangp-001) course at Columbia (via Coursera).
 
-Assignments are completed in Scala.
+Assignments are in Scala.
