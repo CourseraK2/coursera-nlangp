@@ -2,6 +2,8 @@ package ab.nlp.assignment1
 
 import java.io.{FileWriter, BufferedWriter}
 
+import ab.nlp.Word
+
 /**
  * Created by adam at 16/10/2014 14:39
  */

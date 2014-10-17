@@ -1,5 +1,7 @@
 package ab.nlp.assignment1
 
+import ab.nlp.Word
+
 import scala.annotation.tailrec
 import scala.io.Source
 
@@ -24,7 +26,8 @@ object DataSets {
       if (lines.isEmpty) groups
       else {
         val g = lines.takeWhile(!_.isEmpty)
-        doGrouping(g :: groups, lines.drop(g.size + 1))
+        doGrouping(g :: groups, lines.drop
+          (g.size + 1))
       }
     }
     doGrouping(Nil, lines).reverse
