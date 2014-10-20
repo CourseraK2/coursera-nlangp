@@ -59,7 +59,7 @@ class CKY(training: Iterable[Tree]) extends (List[Word] => Tree) {
     val table = calc(1, (for (i <- 1 to n; tag <- tags) yield {
       Key(i, i, tag) -> Value(q(UnaryRule(tag, robustify(s(i - 1)))), None)
     }).toMap)
-    def toTree(key: Key): Tree = table(key) match {
+      def toTree(key: Key): Tree = table(key) match {
       case Value(_, Some(split)) => Node(key.tag, toTree(split.left(key)), toTree(split.right(key)))
       case Value(_, None) => Leaf(key.tag, s(key.i - 1))
     }
